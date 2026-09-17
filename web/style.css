@@ -1,0 +1,339 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap");
+
+:root {
+  --paper: #f3eee6;
+  --elevated: #faf7f1;
+  --surface: #e7dfd2;
+  --ink: #1a1814;
+  --muted: #6f6a62;
+  --accent: #3d5c4e;
+  --danger: #9b4a3c;
+  --same: #dce6df;
+  --unit: #efe6d6;
+  --selected: #cfdccf;
+  --border: #d4c4ae;
+  --line: #cfc4b2;
+  --radius: 12px;
+  --font: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --display: "Fraunces", "Times New Roman", serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+.app {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 28rem;
+  padding: 0.75rem 0.75rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  align-items: stretch;
+}
+
+.hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.6rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.kicker {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.timer {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 1.35rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.hint,
+.message {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.hud-right {
+  text-align: right;
+}
+
+/* Plat 9x9-raster: betrouwbaarder dan geneste 3x3-boxen */
+.sudoku-board {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  grid-template-rows: repeat(9, 1fr);
+  width: 100%;
+  max-width: min(100%, 72vh, 28rem);
+  margin: 0 auto;
+  aspect-ratio: 1 / 1;
+  border: 2.5px solid var(--ink);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--ink);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--ink) 8%, transparent);
+}
+
+.sudoku-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--elevated);
+  color: var(--accent);
+  border: 0;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 0;
+  margin: 0;
+}
+
+/* Dikkere verticale lijnen na kolom 3 en 6 */
+.sudoku-cell:nth-child(3n) {
+  border-right: 2.5px solid var(--ink);
+}
+
+/* Geen rechter rand op de laatste kolom (buitenrand is genoeg) */
+.sudoku-cell:nth-child(9n) {
+  border-right: 0;
+}
+
+/* Dikkere horizontale lijnen na rij 3 en 6 */
+.sudoku-cell:nth-child(n + 19):nth-child(-n + 27),
+.sudoku-cell:nth-child(n + 46):nth-child(-n + 54) {
+  border-bottom: 2.5px solid var(--ink);
+}
+
+/* Geen onderkant op de laatste rij */
+.sudoku-cell:nth-child(n + 73) {
+  border-bottom: 0;
+}
+
+.sudoku-cell.is-unit {
+  background: var(--unit);
+}
+
+.sudoku-cell.is-same {
+  background: var(--same);
+}
+
+.sudoku-cell.is-selected {
+  background: var(--selected);
+  outline: 2.5px solid var(--accent);
+  outline-offset: -2.5px;
+  z-index: 1;
+}
+
+.sudoku-cell.is-given {
+  color: var(--ink);
+}
+
+.sudoku-cell.is-conflict .sudoku-digit {
+  color: var(--danger);
+}
+
+.sudoku-digit {
+  font-family: var(--display);
+  font-size: clamp(0.95rem, 4.2vw, 1.45rem);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.sudoku-cell.is-given .sudoku-digit {
+  font-weight: 600;
+}
+
+.sudoku-notes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 90%;
+  height: 90%;
+  font-size: clamp(0.4rem, 1.6vw, 0.58rem);
+  color: var(--muted);
+}
+
+.sudoku-notes span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pad {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 0.3rem;
+}
+
+.pad button {
+  aspect-ratio: 1;
+  min-height: 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--elevated);
+  font-family: var(--display);
+  font-size: clamp(0.95rem, 3.5vw, 1.15rem);
+  padding: 0.15rem 0;
+}
+
+.pad button small {
+  display: block;
+  font-family: var(--font);
+  font-size: 0.55rem;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.row-2,
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+@media (min-width: 420px) {
+  .actions {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.row-2 button,
+.actions button,
+.levels button {
+  height: 2.4rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--elevated);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.row-2 button.is-on,
+.levels button.is-on {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.levels {
+  display: flex;
+  gap: 0.2rem;
+  padding: 0.2rem;
+  background: var(--surface);
+  border-radius: 10px;
+}
+
+.levels button {
+  flex: 1;
+  height: 2.1rem;
+  border: 0;
+  background: transparent;
+  font-size: 0.8rem;
+}
+
+.levels button.is-on {
+  background: var(--elevated);
+  color: var(--ink);
+}
+
+.linkish {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: 0.78rem;
+  padding: 0.15rem 0;
+}
+
+.win-banner {
+  border: 1px solid var(--border);
+  background: var(--elevated);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+}
+
+.win-banner h2 {
+  margin: 0.1rem 0;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Op smalle/hoge telefoons: iets strakker */
+@media (max-height: 700px) {
+  .app {
+    gap: 0.45rem;
+    padding-top: 0.5rem;
+  }
+
+  h1 {
+    font-size: 1.35rem;
+  }
+
+  .timer {
+    font-size: 1.15rem;
+  }
+
+  .hint {
+    font-size: 0.75rem;
+  }
+
+  .sudoku-board {
+    max-width: min(100%, 52vh);
+  }
+
+  .row-2 button,
+  .actions button {
+    height: 2.15rem;
+    font-size: 0.8rem;
+  }
+
+  .pad button {
+    font-size: 0.95rem;
+  }
+}

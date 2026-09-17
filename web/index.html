@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Inkt</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hud">
+        <div>
+          <p class="kicker" id="statusLabel">Bezig</p>
+          <h1>Inkt</h1>
+        </div>
+        <div class="hud-right">
+          <p class="kicker" id="levelLabel">Makkelijk</p>
+          <p class="timer" id="timer">0:00</p>
+        </div>
+      </header>
+
+      <p class="hint">Tik een vakje aan, kies daarna een cijfer. Originele cijfers blijven staan.</p>
+
+      <div id="board" class="sudoku-board" role="grid" aria-label="Sudoku bord"></div>
+      <div id="win" class="win-banner hidden"></div>
+
+      <div class="pad" id="pad"></div>
+      <div class="row-2">
+        <button type="button" id="btnErase">Wissen</button>
+        <button type="button" id="btnNotes">Notities</button>
+      </div>
+
+      <div class="levels" id="levels">
+        <button type="button" data-level="easy" class="is-on">Makkelijk</button>
+        <button type="button" data-level="medium">Gemiddeld</button>
+        <button type="button" data-level="hard">Moeilijk</button>
+      </div>
+
+      <div class="actions">
+        <button type="button" id="btnNew">Nieuw</button>
+        <button type="button" id="btnUndo">Terug</button>
+        <button type="button" id="btnCheck">Check</button>
+        <button type="button" id="btnHint">Hint</button>
+      </div>
+      <button type="button" class="linkish" id="btnSolve">Toon oplossing</button>
+      <p class="message" id="message"></p>
+    </main>
+    <script src="game.js"></script>
+  </body>
+</html>
