@@ -16,7 +16,7 @@ import webbrowser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from sudoku_project.scripts.sudoku import genereer_puzzel, is_af_en_geldig, kopieer_bord, los_op
+from sudoku import genereer_puzzel, is_af_en_geldig, kopieer_bord, los_op
 
 # Map waarin dit bestand staat (= de root van het project).
 ROOT = Path(__file__).resolve().parent
