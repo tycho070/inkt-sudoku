@@ -4,7 +4,7 @@
  * Bij een nieuwe versie van het spel: verhoog CACHE, dan haalt de telefoon
  * de nieuwe bestanden op.
  */
-const CACHE = "inkt-v1";
+const CACHE = "inkt-v2";
 const FILES = [
   "./",
   "index.html",

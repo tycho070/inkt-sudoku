@@ -354,7 +354,27 @@ function checkBoard() {
     for (let c = 0; c < 9; c++) if (cellHasConflict(state.values, r, c)) conflict = true;
   }
   setMessage(conflict ? "Er staan nog botsende cijfers." : "Nog niet vol, maar geen botsingen.");
+
+  // Op Moeilijk zie je fouten niet vanzelf: na Check lichten ze even rood op.
+  if (conflict && isHard()) {
+    clearTimeout(flashTimer);
+    state.flashConflicts = true;
+    render();
+    flashTimer = setTimeout(() => {
+      state.flashConflicts = false;
+      render();
+    }, FLASH_MS);
+  }
 }
+
+/** Op Moeilijk staan een paar hulpmiddelen uit. */
+function isHard() {
+  return state.difficulty === "hard";
+}
+
+/** Hoe lang fouten rood blijven na Check op Moeilijk (milliseconden). */
+const FLASH_MS = 2500;
+let flashTimer = null;
 
 /** Bewaar het spel in de browser, zodat je later verder kunt. */
 function saveGame() {
@@ -428,7 +448,10 @@ function render() {
   const board = document.getElementById("board");
   board.innerHTML = "";
   const selected = state.selected;
-  const selectedValue = selected ? state.values[selected.row][selected.col] : 0;
+  const hard = isHard();
+  // Moeilijk: geen "zelfde cijfer"-markering en geen rode fouten (behalve vlak na Check).
+  const selectedValue = selected && !hard ? state.values[selected.row][selected.col] : 0;
+  const showConflicts = !hard || state.flashConflicts;
 
   // Plat 9x9-raster (rij voor rij), CSS tekent de 3x3-lijnen
   for (let row = 0; row < 9; row++) {
@@ -444,7 +467,7 @@ function render() {
         btn.classList.add("is-same");
       }
       if (state.givens[row][col]) btn.classList.add("is-given");
-      if (cellHasConflict(state.values, row, col)) btn.classList.add("is-conflict");
+      if (showConflicts && cellHasConflict(state.values, row, col)) btn.classList.add("is-conflict");
       if (value) {
         const span = document.createElement("span");
         span.className = "sudoku-digit";
@@ -475,8 +498,9 @@ function render() {
   for (let d = 1; d <= 9; d++) {
     const b = document.createElement("button");
     b.type = "button";
-    b.innerHTML = `${d}<small>${Math.max(counts[d], 0)}</small>`;
-    b.disabled = counts[d] <= 0 && !state.notesMode;
+    // Moeilijk: geen teller en knoppen blijven altijd aan.
+    b.innerHTML = hard ? String(d) : `${d}<small>${Math.max(counts[d], 0)}</small>`;
+    b.disabled = !hard && counts[d] <= 0 && !state.notesMode;
     b.addEventListener("click", () => placeDigit(d));
     pad.appendChild(b);
   }
@@ -485,6 +509,9 @@ function render() {
   document.getElementById("btnUndo").disabled = state.history.length === 0;
   const labels = { easy: "Makkelijk", medium: "Gemiddeld", hard: "Moeilijk" };
   document.getElementById("levelLabel").textContent = labels[state.difficulty];
+  document.getElementById("hintText").textContent = hard
+    ? "Moeilijk: geen markeringen, geen teller en geen rode fouten. Gebruik Check om fouten even te zien."
+    : "Tik een vakje aan, kies daarna een cijfer. Je spel wordt automatisch bewaard.";
   document.querySelectorAll("#levels button").forEach((btn) => {
     btn.classList.toggle("is-on", btn.dataset.level === state.difficulty);
   });
