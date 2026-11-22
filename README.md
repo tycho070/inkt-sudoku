@@ -31,6 +31,19 @@ python sudoku.py
 python sudoku.py --oplos
 ```
 
+## Op je telefoon (web-app)
+
+De map `web/` is een complete web-app (PWA): alles draait in JavaScript, er is geen
+Python-server nodig. Zet de map `web/` op een gratis host (GitHub Pages, Netlify,
+Cloudflare Pages) en deel de link.
+
+Op de telefoon: open de link en kies **Zet op beginscherm** (iPhone: deelknop in
+Safari; Android: menu ⋮ in Chrome). Dan opent Inkt als een eigen app, werkt het
+offline en wordt je spel automatisch bewaard.
+
+Nieuwe versie online gezet? Verhoog `CACHE` in `web/sw.js` (bijv. `inkt-v2`),
+dan halen telefoons de nieuwe bestanden op.
+
 ## Op GitHub zetten
 
 1. Maak een nieuwe repository op GitHub (leeg, zonder README).
@@ -55,5 +68,6 @@ Vervang `JOUWNAAM` door je GitHub-gebruikersnaam.
 | Kleuren, lettertypes | `web/style.css` |
 | Klikken, toetsenbord, knoppen | `web/game.js` |
 | Teksten op het scherm | `web/index.html` |
+| App-naam, icoon, offline | `web/manifest.webmanifest`, `web/sw.js` |
 
 De Python-engine is expres uitgebreid van commentaar voorzien, zodat je later kunt teruglezen hoe backtracking werkt.

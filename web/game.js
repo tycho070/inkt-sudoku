@@ -41,6 +41,12 @@ const STARTER_SOLUTION = [
 
 const GIVENS = { easy: 40, medium: 32, hard: 26 };
 
+/** Draait `start.py` (Python-server)? Online (bijv. GitHub Pages) is er geen API. */
+const IS_LOCAL = ["localhost", "127.0.0.1"].includes(location.hostname);
+
+/** Sleutel waaronder het spel in de browser wordt bewaard. */
+const SAVE_KEY = "inkt-spel-v1";
+
 /** @type {object} */
 const state = {
   values: clone(STARTER_PUZZLE),
@@ -225,9 +231,12 @@ function loadPuzzle(puzzle, solution, difficulty) {
  * valt terug op JavaScript als je alleen index.html opent.
  */
 async function newGame(difficulty = state.difficulty) {
-  setMessage(difficulty === state.difficulty ? "Nieuwe puzzel laden…" : "");
+  setMessage("Nieuwe puzzel maken…");
+  // Even wachten zodat de tekst zichtbaar is voordat het rekenen begint.
+  await new Promise((resolve) => setTimeout(resolve, 20));
   try {
-    const res = await fetch("/api/nieuw", {
+    if (!IS_LOCAL) throw new Error("geen Python-server online");
+    const res = await fetch("api/nieuw", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ niveau: difficulty }),
@@ -347,6 +356,65 @@ function checkBoard() {
   setMessage(conflict ? "Er staan nog botsende cijfers." : "Nog niet vol, maar geen botsingen.");
 }
 
+/** Bewaar het spel in de browser, zodat je later verder kunt. */
+function saveGame() {
+  try {
+    const elapsed = state.frozenMs ?? Date.now() - state.startedAt;
+    localStorage.setItem(
+      SAVE_KEY,
+      JSON.stringify({
+        values: state.values,
+        givens: state.givens,
+        notes: state.notes,
+        solution: state.solution,
+        difficulty: state.difficulty,
+        status: state.status,
+        elapsed,
+      })
+    );
+  } catch {
+    /* privévenster of opslag vol: dan maar niet bewaren */
+  }
+}
+
+/** Laad een bewaard spel. Geeft true terug als dat lukte. */
+function loadSavedGame() {
+  try {
+    const data = JSON.parse(localStorage.getItem(SAVE_KEY) || "null");
+    if (!data || !Array.isArray(data.values) || data.values.length !== 9) return false;
+    state.values = data.values;
+    state.givens = data.givens;
+    state.notes = data.notes;
+    state.solution = data.solution;
+    state.difficulty = data.difficulty in GIVENS ? data.difficulty : "easy";
+    state.status = data.status || "playing";
+    state.startedAt = Date.now() - (data.elapsed || 0);
+    state.frozenMs = state.status === "playing" ? null : data.elapsed || 0;
+    state.selected = null;
+    state.notesMode = false;
+    state.history = [];
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Heeft de speler al iets ingevuld in een lopend spel? */
+function hasProgress() {
+  if (state.status !== "playing") return false;
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (!state.givens[r][c] && (state.values[r][c] || state.notes[r][c])) return true;
+    }
+  }
+  return false;
+}
+
+/** Vraag bevestiging voordat lopend werk verloren gaat. */
+function confirmLoseProgress(text) {
+  return !hasProgress() || window.confirm(text);
+}
+
 function setMessage(text) {
   document.getElementById("message").textContent = text;
 }
@@ -433,6 +501,7 @@ function render() {
     win.classList.add("hidden");
     win.innerHTML = "";
   }
+  saveGame();
 }
 
 document.getElementById("btnErase").addEventListener("click", erase);
@@ -440,13 +509,19 @@ document.getElementById("btnNotes").addEventListener("click", () => {
   state.notesMode = !state.notesMode;
   render();
 });
-document.getElementById("btnNew").addEventListener("click", () => newGame());
+document.getElementById("btnNew").addEventListener("click", () => {
+  if (confirmLoseProgress("Nieuwe puzzel beginnen? Je huidige spel gaat verloren.")) newGame();
+});
 document.getElementById("btnUndo").addEventListener("click", undo);
 document.getElementById("btnCheck").addEventListener("click", checkBoard);
 document.getElementById("btnHint").addEventListener("click", hint);
-document.getElementById("btnSolve").addEventListener("click", reveal);
+document.getElementById("btnSolve").addEventListener("click", () => {
+  if (state.status === "playing" && window.confirm("Weet je het zeker? Dan zie je de hele oplossing.")) reveal();
+});
 document.querySelectorAll("#levels button").forEach((btn) => {
-  btn.addEventListener("click", () => newGame(btn.dataset.level));
+  btn.addEventListener("click", () => {
+    if (confirmLoseProgress("Ander niveau kiezen? Je huidige spel gaat verloren.")) newGame(btn.dataset.level);
+  });
 });
 
 window.addEventListener("keydown", (event) => {
@@ -499,4 +574,19 @@ setInterval(() => {
   }
 }, 1000);
 
-render();
+// Telefoon op slot of andere app geopend: tijd en stand bewaren.
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "hidden") saveGame();
+});
+
+if (loadSavedGame()) {
+  render();
+} else {
+  render();
+  newGame("easy");
+}
+
+// Offline spelen + "Zet op beginscherm" mogelijk maken.
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}

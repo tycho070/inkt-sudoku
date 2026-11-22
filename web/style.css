@@ -33,7 +33,19 @@ body {
 
 button {
   font-family: inherit;
+  color: inherit;
   cursor: pointer;
+  /* Telefoon: geen grijze flits en geen inzoomen bij snel dubbeltikken */
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+body {
+  /* Geen tekst selecteren als je lang op een vakje drukt */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
 }
 
 button:disabled {
@@ -45,7 +57,9 @@ button:disabled {
   margin: 0 auto;
   width: 100%;
   max-width: 28rem;
-  padding: 0.75rem 0.75rem 1.25rem;
+  /* env(...) = ruimte voor de notch / thuisbalk als de app op het beginscherm staat */
+  padding: max(0.75rem, env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right))
+    max(1.25rem, env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
@@ -208,6 +222,7 @@ h1 {
 
 .pad button {
   aspect-ratio: 1;
+  color: var(--ink);
   min-height: 0;
   border: 1px solid var(--border);
   border-radius: 8px;
