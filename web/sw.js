@@ -4,7 +4,7 @@
  * Bij een nieuwe versie van het spel: verhoog CACHE, dan haalt de telefoon
  * de nieuwe bestanden op.
  */
-const CACHE = "inkt-v2";
+const CACHE = "inkt-v3";
 const FILES = [
   "./",
   "index.html",
@@ -23,8 +23,12 @@ self.addEventListener("install", (event) => {
 });
 
 self.addEventListener("activate", (event) => {
+  // Alleen oude Inkt-caches opruimen: Synapse (/synapse/) staat op hetzelfde domein
+  // en heeft een eigen cache die we niet mogen wissen.
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+    caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith("inkt-") && k !== CACHE).map((k) => caches.delete(k))))
   );
   self.clients.claim();
 });

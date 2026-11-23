@@ -4,6 +4,9 @@ Klikbare Sudoku in de browser, plus een Python-engine die je kunt lezen en aanpa
 
 Dit is een schoolvriendelijk project (geen extra packages). Alles draait met gewone Python 3.
 
+> **Ook in deze repo:** [Synapse](synapse/), een to-do / projecttracker met taken als netwerk.
+> Online te vinden op `/synapse/` van dezelfde GitHub Pages-site.
+
 ## Mapstructuur
 
 ```
@@ -41,7 +44,7 @@ Op de telefoon: open de link en kies **Zet op beginscherm** (iPhone: deelknop in
 Safari; Android: menu ⋮ in Chrome). Dan opent Inkt als een eigen app, werkt het
 offline en wordt je spel automatisch bewaard.
 
-Nieuwe versie online gezet? Verhoog `CACHE` in `web/sw.js` (bijv. `inkt-v2`),
+Nieuwe versie online gezet? Verhoog `CACHE` in `web/sw.js` (bijv. `inkt-v4`),
 dan halen telefoons de nieuwe bestanden op.
 
 ## Op GitHub zetten

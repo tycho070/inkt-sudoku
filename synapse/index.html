@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Synapse — project & taken netwerk</title>
+    <meta name="description" content="To-do- en projecttracker met taken als netwerk." />
+    <meta name="theme-color" content="#07090f" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-title" content="Synapse" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icon-180.png" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="bg-grid" aria-hidden="true"></div>
+    <div class="bg-glow" aria-hidden="true"></div>
+
+    <div class="shell">
+      <!-- Zijkant: projecten -->
+      <aside class="sidebar">
+        <header class="brand">
+          <div class="brand-mark" aria-hidden="true"></div>
+          <div>
+            <p class="eyebrow">Neural workspace</p>
+            <h1>Synapse</h1>
+          </div>
+        </header>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Projecten</h2>
+            <button type="button" class="btn-icon" id="btnNewProject" title="Nieuw project">+</button>
+          </div>
+          <ul class="project-list" id="projectList"></ul>
+        </section>
+
+        <section class="panel form-panel" id="projectFormPanel">
+          <div class="panel-head">
+            <h2 id="formTitle">Nieuw project</h2>
+          </div>
+          <form id="projectForm" autocomplete="off">
+            <label>
+              Naam
+              <input type="text" name="name" required placeholder="Bijv. Inkt Sudoku" />
+            </label>
+            <label>
+              GitHub-repo
+              <input type="url" name="repo" placeholder="https://github.com/jij/repo" />
+            </label>
+            <label>
+              Status
+              <select name="status">
+                <option value="idea">Idee</option>
+                <option value="active" selected>Actief</option>
+                <option value="paused">Gepauzeerd</option>
+                <option value="done">Afgerond</option>
+              </select>
+            </label>
+            <label>
+              Deadline
+              <input type="date" name="deadline" />
+            </label>
+            <label>
+              Beschrijving
+              <textarea name="description" rows="3" placeholder="Wat is het doel van dit project?"></textarea>
+            </label>
+            <div class="form-actions">
+              <button type="submit" class="btn primary">Opslaan</button>
+              <button type="button" class="btn ghost" id="btnCancelForm">Annuleer</button>
+              <button type="button" class="btn danger" id="btnDeleteProject" hidden>Verwijder project</button>
+            </div>
+          </form>
+        </section>
+
+        <footer class="sidebar-foot">
+          <p>Data blijft lokaal in je browser. Maak af en toe een back-up.</p>
+          <div class="backup-actions">
+            <button type="button" class="btn ghost" id="btnExport">Exporteer</button>
+            <button type="button" class="btn ghost" id="btnImport">Importeer</button>
+            <input type="file" id="importFile" accept=".json,application/json" hidden />
+          </div>
+          <p class="backup-status" id="backupStatus" role="status" aria-live="polite"></p>
+        </footer>
+      </aside>
+
+      <!-- Midden: neural graph -->
+      <main class="stage">
+        <header class="stage-bar">
+          <div>
+            <p class="eyebrow" id="activeProjectLabel">Geen project geselecteerd</p>
+            <h2 id="activeProjectName">Kies of maak een project</h2>
+            <p class="stage-meta" id="stageMeta" hidden></p>
+          </div>
+          <div class="stage-actions">
+            <div class="view-toggle" role="group" aria-label="Weergave">
+              <button type="button" class="is-active" data-view="graph" aria-pressed="true">Netwerk</button>
+              <button type="button" data-view="list" aria-pressed="false">Lijst</button>
+            </div>
+            <button type="button" class="btn" id="btnAddTask" disabled>+ Taak</button>
+            <button type="button" class="btn ghost graph-only" id="btnAutoLayout" disabled>Orden netwerk</button>
+            <button type="button" class="btn ghost graph-only" id="btnClearLinks" disabled>Links wissen</button>
+          </div>
+        </header>
+
+        <div class="list-view" id="listView" hidden>
+          <div class="list-toolbar">
+            <label>
+              Prioriteit
+              <select id="listPriority">
+                <option value="all">Alle</option>
+                <option value="high">Hoog</option>
+                <option value="medium">Normaal</option>
+                <option value="low">Laag</option>
+              </select>
+            </label>
+          </div>
+          <div class="list-groups" id="listGroups"></div>
+        </div>
+
+        <div class="canvas-wrap" id="canvasWrap">
+          <canvas id="net" width="1200" height="800"></canvas>
+          <div class="canvas-hint" id="canvasHint">
+            Sleep knopen · dubbelklik voor nieuwe taak · Shift + sleep van taak A naar B: eerst A, dan B
+          </div>
+        </div>
+
+        <div class="legend">
+          <span><i class="dot todo"></i> Te doen</span>
+          <span><i class="dot doing"></i> Bezig</span>
+          <span><i class="dot done"></i> Klaar</span>
+          <span class="graph-only"><i class="line"></i> Afhankelijkheid (eerst → daarna)</span>
+        </div>
+      </main>
+
+      <!-- Rechts: taakdetail -->
+      <aside class="inspector" id="inspector">
+        <div class="panel-head">
+          <h2>Taak</h2>
+          <button type="button" class="btn-icon" id="btnCloseInspector" title="Sluiten">×</button>
+        </div>
+        <form id="taskForm" class="task-form">
+          <label>
+            Titel
+            <input type="text" name="title" required />
+          </label>
+          <label>
+            Status
+            <select name="status">
+              <option value="todo">Te doen</option>
+              <option value="doing">Bezig</option>
+              <option value="done">Klaar</option>
+            </select>
+          </label>
+          <label>
+            Prioriteit
+            <select name="priority">
+              <option value="low">Laag</option>
+              <option value="medium" selected>Normaal</option>
+              <option value="high">Hoog</option>
+            </select>
+          </label>
+          <label>
+            Notities
+            <textarea name="notes" rows="5" placeholder="Details, links, ideeën…"></textarea>
+          </label>
+          <div class="form-actions">
+            <button type="button" class="btn danger" id="btnDeleteTask">Verwijder taak</button>
+          </div>
+          <p class="form-note">Wijzigingen worden automatisch opgeslagen.</p>
+        </form>
+        <div class="links-block">
+          <p class="eyebrow">Verbindingen</p>
+          <ul class="link-list" id="linkList"></ul>
+        </div>
+        <div class="progress-block">
+          <p class="eyebrow">Projectvoortgang</p>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+          <p class="progress-label" id="progressLabel">0 / 0 taken klaar</p>
+        </div>
+      </aside>
+    </div>
+
+    <script src="js/store.js"></script>
+    <script src="js/graph.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

@@ -1,4 +1,6 @@
-# Zet de map web/ automatisch online via GitHub Pages bij elke push naar main.
+# Zet de web-apps automatisch online via GitHub Pages bij elke push naar main:
+#   web/      -> Inkt     op  /inkt-sudoku/
+#   synapse/  -> Synapse  op  /inkt-sudoku/synapse/
 name: Publiceer web-app
 
 on:
@@ -24,8 +26,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: Site samenstellen (Inkt + Synapse)
+        run: |
+          mkdir _site
+          cp -r web/. _site/
+          if [ -d synapse ]; then
+            mkdir _site/synapse
+            cp -r synapse/. _site/synapse/
+          fi
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: web
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
