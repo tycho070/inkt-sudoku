@@ -1,6 +1,7 @@
 # Zet de web-apps automatisch online via GitHub Pages bij elke push naar main:
 #   web/      -> Inkt     op  /inkt-sudoku/
-#   synapse/  -> Synapse  op  /inkt-sudoku/synapse/
+#   neural-planner/  -> Neural Planner  op  /inkt-sudoku/neural-planner/
+#   synapse/         -> doorverwijzing  op  /inkt-sudoku/synapse/ (oude naam)
 name: Publiceer web-app
 
 on:
@@ -26,14 +27,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
-      - name: Site samenstellen (Inkt + Synapse)
+      - name: Site samenstellen (Inkt + Neural Planner)
         run: |
           mkdir _site
           cp -r web/. _site/
-          if [ -d synapse ]; then
-            mkdir _site/synapse
-            cp -r synapse/. _site/synapse/
-          fi
+          for app in neural-planner synapse; do
+            if [ -d "$app" ]; then
+              mkdir "_site/$app"
+              cp -r "$app/." "_site/$app/"
+            fi
+          done
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

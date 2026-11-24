@@ -50,6 +50,12 @@ class NeuralGraph {
 
   resize() {
     const rect = this.canvas.parentElement.getBoundingClientRect();
+    // Midden van het beeld vasthouden als het canvas breder/smaller wordt (bijv. bij het
+    // in-/uitklappen van het projectenpaneel). Niet als het canvas verborgen was (breedte 0).
+    if (this.width > 0 && this.height > 0 && rect.width > 0 && rect.height > 0) {
+      this.offset.x += (rect.width - this.width) / 2;
+      this.offset.y += (rect.height - this.height) / 2;
+    }
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     this.canvas.width = Math.max(1, Math.floor(rect.width * dpr));
     this.canvas.height = Math.max(1, Math.floor(rect.height * dpr));

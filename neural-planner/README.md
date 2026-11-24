@@ -1,4 +1,4 @@
-# Synapse
+# Neural Planner
 
 Een to-do / project-tracker die je taken laat zien als een **netwerk**: elke taak is een knoop, en pijlen tonen wat eerst moet. Werkt op laptop én telefoon, ook offline, en je kunt hem installeren als app.
 
@@ -37,12 +37,13 @@ Ga daarna naar `http://127.0.0.1:8080`. Je kunt `index.html` ook direct openen, 
 | Pannen | Sleep op lege ruimte | Sleep op lege ruimte |
 | Project bewerken | Dubbelklik op het project | Tik op het project dat al actief is |
 | Ordenen | Knop **Orden netwerk** | idem |
+| Projectenpaneel in-/uitklappen | Pijlknop naast de naam linksboven | idem (klapt de projectenlijst omhoog weg) |
 
 Wijzigingen aan een taak worden automatisch opgeslagen.
 
 ## Op je telefoon (web-app)
 
-Open de online versie en kies **Zet op beginscherm**: op iPhone via de deelknop in Safari, op Android via het menu ⋮ in Chrome. Synapse opent dan als een eigen app en werkt ook offline.
+Open de online versie en kies **Zet op beginscherm**: op iPhone via de deelknop in Safari, op Android via het menu ⋮ in Chrome. Neural Planner opent dan als een eigen app en werkt ook offline.
 
 Let op: je data staat per browser of apparaat. Wil je overstappen naar een ander apparaat, gebruik dan **Exporteer** en daar **Importeer**.
 
@@ -63,3 +64,7 @@ Nieuw bestand toegevoegd? Zet het ook in `FILES` in `sw.js`, anders werkt het of
 ## Design
 
 Donkere "neural workspace"-stijl: gloeiende knopen, pulserende verbindingen, en de lettertypes Syne en IBM Plex.
+
+## Vroeger: Synapse
+
+De app heette eerst **Synapse** en stond online op `/inkt-sudoku/synapse/`. Dat adres stuurt je nu door naar `/inkt-sudoku/neural-planner/`. Je data blijft gewoon staan (de opslagsleutel `synapse-v1` is bewust niet veranderd). Had je de oude app op je beginscherm gezet? Verwijder die en installeer Neural Planner opnieuw. Oude back-ups van Synapse kun je gewoon importeren.

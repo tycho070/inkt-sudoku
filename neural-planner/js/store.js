@@ -1,5 +1,5 @@
 /**
- * Lokale data-laag voor Synapse.
+ * Lokale data-laag voor Neural Planner (vroeger "Synapse").
  * Alles blijft in localStorage onder één sleutel.
  *
  * Alles staat in een eigen functie-scope (IIFE): gewone <script>-bestanden delen
@@ -7,6 +7,8 @@
  */
 (() => {
 
+// Bewust nog de oude naam (de app heette eerst Synapse): een nieuwe sleutel zou alle
+// bewaarde projecten "kwijt" laten lijken.
 const STORAGE_KEY = "synapse-v1";
 
 /** @typedef {"idea"|"active"|"paused"|"done"} ProjectStatus */
@@ -121,7 +123,7 @@ function oneOf(value, allowed, fallback) {
  */
 function normalizeState(data) {
   if (!data || typeof data !== "object" || !Array.isArray(data.projects)) {
-    throw new Error("Dit is geen geldig Synapse-bestand (er staat geen lijst met projecten in).");
+    throw new Error("Dit is geen geldig Neural Planner-bestand (er staat geen lijst met projecten in).");
   }
 
   const usedIds = new Set();
@@ -195,7 +197,7 @@ function saveState(state) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (err) {
     // Bijv. opslag vol of geblokkeerd (privévenster): de app blijft werken, maar waarschuw.
-    console.warn("Synapse: opslaan mislukt", err);
+    console.warn("Neural Planner: opslaan mislukt", err);
   }
 }
 
@@ -203,7 +205,7 @@ function saveState(state) {
 function exportJson(state) {
   const { view, listPriority, ...data } = state; // weergave-voorkeuren horen niet in een back-up
   return JSON.stringify(
-    { app: "synapse", exportedAt: new Date().toISOString(), ...data, version: DATA_VERSION },
+    { app: "neural-planner", exportedAt: new Date().toISOString(), ...data, version: DATA_VERSION },
     null,
     2,
   );
@@ -218,7 +220,7 @@ function importJson(text) {
     throw new Error("Dit bestand is geen geldige JSON.");
   }
   if (Number(data?.version) > DATA_VERSION) {
-    throw new Error("Dit bestand komt uit een nieuwere versie van Synapse. Werk de app eerst bij.");
+    throw new Error("Dit bestand komt uit een nieuwere versie van Neural Planner. Werk de app eerst bij.");
   }
   return normalizeState(data);
 }

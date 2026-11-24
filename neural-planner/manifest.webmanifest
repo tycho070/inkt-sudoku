@@ -1,6 +1,6 @@
 {
-  "name": "Synapse — projecten & taken",
-  "short_name": "Synapse",
+  "name": "Neural Planner — projecten & taken",
+  "short_name": "Neural Planner",
   "description": "To-do- en projecttracker met taken als netwerk.",
   "lang": "nl",
   "start_url": "./",

@@ -37,7 +37,43 @@ const els = {
   inspector: document.getElementById("inspector"),
   progressFill: document.getElementById("progressFill"),
   progressLabel: document.getElementById("progressLabel"),
+  shell: document.querySelector(".shell"),
+  btnToggleSidebar: document.getElementById("btnToggleSidebar"),
 };
+
+/*
+ * Projectenpaneel in- en uitklappen. Dit is een voorkeur van dit apparaat, dus het staat
+ * los van de projectdata (en gaat niet mee in een back-up).
+ */
+const SIDEBAR_KEY = "neural-planner-sidebar";
+
+function setSidebarCollapsed(collapsed, remember = true) {
+  els.shell.classList.toggle("sidebar-collapsed", collapsed);
+  const label = collapsed ? "Projecten uitklappen" : "Projecten inklappen";
+  els.btnToggleSidebar.setAttribute("aria-expanded", String(!collapsed));
+  els.btnToggleSidebar.setAttribute("aria-label", label);
+  els.btnToggleSidebar.title = label;
+  if (!remember) return;
+  try {
+    localStorage.setItem(SIDEBAR_KEY, collapsed ? "1" : "0");
+  } catch {
+    // Opslag niet beschikbaar (bijv. privévenster): dan alleen voor nu.
+  }
+}
+
+function isSidebarCollapsed() {
+  return els.shell.classList.contains("sidebar-collapsed");
+}
+
+// Vóór het tekenen van de graph toepassen, zodat het paneel niet zichtbaar dichtschuift bij het laden.
+try {
+  setSidebarCollapsed(localStorage.getItem(SIDEBAR_KEY) === "1", false);
+} catch {
+  setSidebarCollapsed(false, false);
+}
+els.btnToggleSidebar.addEventListener("click", () => setSidebarCollapsed(!isSidebarCollapsed()));
+// Animaties pas aanzetten nadat de pagina in de juiste stand getekend is.
+requestAnimationFrame(() => requestAnimationFrame(() => els.shell.classList.remove("no-anim")));
 
 let editingProjectId = null;
 let selectedTaskId = null;
@@ -51,6 +87,12 @@ const graph = new window.NeuralGraph(document.getElementById("net"), {
   onLink: (from, to) => addLink(from, to),
   onLayout: () => persist(),
 });
+
+// Canvas opnieuw opmeten als zijn ruimte verandert (o.a. tijdens het in-/uitklappen
+// van het projectenpaneel), anders raakt het netwerk uitgerekt.
+if ("ResizeObserver" in window) {
+  new ResizeObserver(() => graph.resize()).observe(els.canvasWrap);
+}
 
 /** Zelfde breekpunt als in styles.css (één kolom + bottom-sheet). */
 function isNarrow() {
@@ -157,6 +199,8 @@ function renderProjects() {
  */
 function fillProjectForm(project = null, open = false) {
   els.projectFormPanel.classList.toggle("is-open", open);
+  // Project bewerken terwijl het paneel dicht is: eerst uitklappen.
+  if (open && isSidebarCollapsed()) setSidebarCollapsed(false);
   if (open && isNarrow()) {
     els.projectFormPanel.scrollIntoView({ block: "start", behavior: "smooth" });
   }
@@ -628,7 +672,7 @@ els.btnExport.addEventListener("click", () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `synapse-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `neural-planner-backup-${new Date().toISOString().slice(0, 10)}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();

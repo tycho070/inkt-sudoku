@@ -82,6 +82,13 @@ button {
   grid-template-columns: 300px 1fr 300px;
   height: 100vh;
   gap: 0;
+  transition: grid-template-columns 0.25s ease;
+}
+
+/* Tijdens het laden geen animatie, zodat een ingeklapt paneel niet zichtbaar dichtschuift. */
+.shell.no-anim,
+.shell.no-anim * {
+  transition: none !important;
 }
 
 .sidebar,
@@ -127,10 +134,64 @@ button {
   box-shadow: 0 0 24px rgba(110, 168, 255, 0.35);
 }
 
+.brand-text {
+  min-width: 0;
+}
+
+/* Knop om het projectenpaneel in en uit te klappen. */
+.sidebar-toggle {
+  margin-left: auto;
+  flex: none;
+  color: var(--muted);
+}
+
+.sidebar-toggle:hover {
+  color: var(--text);
+}
+
+.sidebar-toggle svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.25s ease;
+}
+
+/* Ingeklapt: alleen een smalle strook met logo en uitklapknop. */
+.shell.sidebar-collapsed {
+  grid-template-columns: 64px 1fr 300px;
+}
+
+.shell.sidebar-collapsed .sidebar {
+  overflow: hidden;
+}
+
+.shell.sidebar-collapsed .brand {
+  flex-direction: column;
+  padding: 1.25rem 0 0.75rem;
+}
+
+.shell.sidebar-collapsed .brand-text,
+.shell.sidebar-collapsed .sidebar > :not(.brand) {
+  display: none;
+}
+
+.shell.sidebar-collapsed .sidebar-toggle {
+  margin-left: 0;
+}
+
+.shell.sidebar-collapsed .sidebar-toggle svg {
+  transform: rotate(180deg);
+}
+
 .brand h1 {
   margin: 0;
   font-family: var(--display);
-  font-size: 1.35rem;
+  font-size: 1.25rem;
+  white-space: nowrap;
   letter-spacing: -0.03em;
 }
 
@@ -733,6 +794,32 @@ textarea {
     border: 0;
     border-bottom: 1px solid var(--line);
     overflow: visible;
+  }
+
+  /* Telefoon/smal: het paneel klapt omhoog in; de kop met de naam blijft staan. */
+  .shell.sidebar-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .shell.sidebar-collapsed .brand {
+    flex-direction: row;
+    padding: 1.25rem 1.1rem 0.75rem;
+  }
+
+  .shell.sidebar-collapsed .brand-text {
+    display: block;
+  }
+
+  .sidebar-toggle svg {
+    transform: rotate(90deg); /* pijl omhoog = inklappen */
+  }
+
+  .shell.sidebar-collapsed .sidebar-toggle svg {
+    transform: rotate(-90deg); /* pijl omlaag = uitklappen */
+  }
+
+  .shell.sidebar-collapsed .sidebar-toggle {
+    margin-left: auto;
   }
 
   /* Projectformulier alleen tonen als je op + tikt of een project bewerkt. */

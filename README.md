@@ -4,8 +4,9 @@ Klikbare Sudoku in de browser, plus een Python-engine die je kunt lezen en aanpa
 
 Dit is een schoolvriendelijk project (geen extra packages). Alles draait met gewone Python 3.
 
-> **Ook in deze repo:** [Synapse](synapse/), een to-do / projecttracker met taken als netwerk.
-> Online te vinden op `/synapse/` van dezelfde GitHub Pages-site.
+> **Ook in deze repo:** [Neural Planner](neural-planner/), een to-do / projecttracker met taken als netwerk.
+> Online te vinden op `/neural-planner/` van dezelfde GitHub Pages-site. (Hij heette eerst Synapse;
+> het oude adres `/synapse/` stuurt door.)
 
 ## Mapstructuur
 
